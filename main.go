@@ -1,13 +1,12 @@
 package main
 
+
 import (
-    "github.com/gopxl/pixel/v2"
     "fmt"
-    "github.com/gopxl/pixel/v2/backends/opengl"
+    "chip8/chip8"
 )
 
-//By Lucas Frias KU EECS 268
-// Lab 1 - Dated Jan 27th 2026
+//By Lucas Frias from the University of Kansas 
 //       <@
 //       (KU//
 //        "
@@ -16,5 +15,6 @@ import (
 
 func main(){
 	fmt.Println("");
-	opengl.Run(run);
+	chip8.NewChip8();
+	fmt.Println("All systems go");
 }
