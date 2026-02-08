@@ -1,0 +1,7 @@
+#By Lucas Frias KU EECS 268
+# Lab 2 - Dated Feb 2nd 2026
+#       <@
+#       (KU//
+#        "
+# Rock Chalk!
+# Home grown, no AI code with lots of comments
