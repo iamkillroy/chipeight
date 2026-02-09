@@ -14,17 +14,15 @@ import pygame
 
 
 #### VARIABLES
-devMode = True #enables a testing mode of every functio 
+devMode = True #enables a testing mode of every functio
 
 if __name__ == "__main__":
 	print("Welcome to Chip8Py")
 	c8 = chip8.Chip8()
-	if devMode == True:
+	if devMode:
 		print("Instruction test mode....")
 		instructions = [0x0F12, 0x00E0, 0x0EE]
 		print(len(instructions))
 		for instruction in instructions:
 			print("Cool")
 			c8.do(instruction)
-	
-			
