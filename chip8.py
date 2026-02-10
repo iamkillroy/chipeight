@@ -3,6 +3,9 @@
 # PYTHON CHIP EMULATION #
 #########################
 
+from operator import le
+
+
 class Chip8:
     def __init__(self):
         # Program Counter -- all Chip8 Emulation
@@ -18,6 +21,7 @@ class Chip8:
         # actual stack, what we'll be moving
         # through
         self.stack = [0] * 16
+        self.debug = True #debug mode, prints registers and outputs
         # constant namespace
         self._NAME = {
             "NONE": 0,
@@ -40,8 +44,12 @@ class Chip8:
             "SHR VX VY": 18,
             "SUBN VX VY": 19,
             "SHL VX VY": 20,
-            "SNE VX VY": 20,
-            "LD I ADDR": 20,
+            "SNE VX VY": 21,
+            "LD I ADDR": 22,
+            "SKP VX": 23,
+            "SNKP VX": 24,
+            "LD VX DT": 25,
+            "LD VX ST": 26,
 
         }
         self._TYPE = {
@@ -51,6 +59,7 @@ class Chip8:
             "VX, VY": 3,
             "VX, VY 8 INSTRUCTION": 4,
             "ADDR + V0": 5,
+            "VX KEY": 5,
 
         }
 
@@ -99,7 +108,7 @@ class Chip8:
                     case 0xE, 0xE:  # 0x00EE RT (return from sub)
                         operationNamespace = self._NAME["RT"]
                     case _, _:
-                        operationNamespace = self._NAME["SYS"]
+                        operationNamespace = self._NAME["SYS ADDR"]
                         operationDataType = self._TYPE["ADDR"]
 
             case 0x1:
@@ -169,7 +178,34 @@ class Chip8:
             case 0xD:
                 operationNamespace = self._NAME["DRW VX VY NIBBLE"]
                 operationDataType = self._TYPE["VX, VY NIBBLE"]
-
+            case 0xE:
+                match thirdMostSignificantNibble, leastMostSignificantNibble:
+                    case 0x9, 0xE: #Skips next instruction if key Vx is press
+                        operationNamespace = self._NAME["SKP VX"]
+                        operationDataType = self._TYPE["VX KEY"]
+                    case 0xA, 0x1: #Skips next instruction if key Vx is press
+                        operationNamespace = self._NAME["SNKP VX"]
+                        operationDataType = self._TYPE["VX KEY"]
+            case 0xF:
+                match thirdMostSignificantNibble, leastMostSignificantNibble:
+                    case 0x0, 0x7:
+                        operationNamespace = self._NAME["LD VX DT"]
+                        operationDataType = self._TYPE["VX KEY"]
+                    case 0x1, 0x8:
+                        operationNamespace = self._NAME["LD VX ST"]
+                        operationDataType = self._TYPE["VX KEY"]
+                    case 0x1, 0xE:
+                        operationNamespace = self._NAME["LD VX ST"]
+                        operationDataType = self._TYPE["VX KEY"]
+                    case 0x2, 0x9:
+                            operationNamespace = self._NAME["LD F VX"]
+                            operationDataType = self._TYPE["VX KEY"]
+                    case 0x5, 0x5:
+                            operationNamespace = self._NAME["LD I VX"]
+                            operationDataType = self._TYPE["VX KEY"]
+                    case 0x6, 0x5:
+                            operationNamespace = self._NAME["LD VX I"]
+                            operationDataType = self._TYPE["VX KEY"]
         return operationData, operationDataType, operationNamespace
 
 
@@ -179,5 +215,9 @@ class Chip8:
         Returns values if optional kwargs are set
         """
         # Specify the instruction type
-        instructionType = None
-        print(self.returnInstruction(instruction))
+        operationData, operationDataType, operationNamespace = self.returnInstruction(instruction)
+        match operationDataType:
+            case 2: #VX, BYTE
+                print("true")
+    def test(self):
+        ...
