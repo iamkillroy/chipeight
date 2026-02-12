@@ -21,7 +21,7 @@ if __name__ == "__main__":
 	c8 = chip8.Chip8()
 	if devMode:
 		print("Instruction test mode....")
-		instructions = [0x0F12, 0x00E0, 0x0EE]
+		instructions = [0x7A12, 0x3A12]
 		print(len(instructions))
 		for instruction in instructions:
 			print("Cool")

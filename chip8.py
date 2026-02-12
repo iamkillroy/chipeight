@@ -31,7 +31,7 @@ class Chip8:
             "RT": 4,
             "CALL ADDR": 5,
             "SE VX BYTE": 6,
-            "SNE VX BYTE": 6,
+            "SNE VX BYTE": 7,
             "SE VX VY": 9,
             "LD VX BYTE": 10,
             "ADD VX BYTE": 11,
@@ -217,7 +217,46 @@ class Chip8:
         # Specify the instruction type
         operationData, operationDataType, operationNamespace = self.returnInstruction(instruction)
         match operationDataType:
-            case 2: #VX, BYTE
-                print("true")
+            case 2: #VX, BYTE -- all instructions that use VX, BYTE addressing ?xkk
+                vx = (operationData >> 4) >> 4 #vx register
+                nnByte = 0x00FF & operationData #nnbyte, made from two nibbles at the end
+                match operationNamespace:
+                    case 10: #LD VX BYTE
+                        ###############
+                        # LD VX BYTE  #
+                        ###############
+                        # Transfers the immediate byte KK
+                        # to the register VX
+                        self.vRegisters[vx] = nnByte
+                        if self.debug: print(f"DEBUG: Setting V{vx} <- {self.vRegisters[vx]}")
+                    case 11: #ADD VX BYTE
+                        ###############
+                        # ADD VX BYTE  #
+                        ###############
+                        # Adds byte KK and Vx and outputs it
+                        # to the register VX
+                        self.vRegisters[vx] = (nnByte + self.vRegisters[vx]) & 0xFF #adds wrap
+                        if self.debug: print(f"DEBUG: Setting V{vx} <- {self.vRegisters[vx]}")
+                    case 6: #SE VX BYTE
+                        ###############
+                        # SE VX BYTE  #
+                        ###############
+                        # Skip next instruction if the value in vx == kk
+                        vxisByte = True if vx == nnByte else False
+                        if vxisByte:
+                            self.PC += 2 #skips by an extra 2
+                        if self.debug and vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
+                        if self.debug and not vxisByte: print(f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} != {nnByte}")
+                    case 7: #SNE VX BYTE
+                        ###############
+                        # SNE VX BYTE  #
+                        ###############
+                        # Skip next instruction if the value in vx != kk
+                        vxisByte = True if vx == nnByte else False
+                        if not vxisByte:
+                            self.PC += 2 #skips by an extra 2
+                        if self.debug and not vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} != {nnByte}")
+                        if self.debug and vxisByte: print(f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
+        self.PC += 2
     def test(self):
         ...
