@@ -242,7 +242,7 @@ class Chip8:
                         # SE VX BYTE  #
                         ###############
                         # Skip next instruction if the value in vx == kk
-                        vxisByte = True if vx == nnByte else False
+                        vxisByte = True if self.vRegisters[vx] == nnByte else False
                         if vxisByte:
                             self.PC += 2 #skips by an extra 2
                         if self.debug and vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
@@ -252,11 +252,21 @@ class Chip8:
                         # SNE VX BYTE  #
                         ###############
                         # Skip next instruction if the value in vx != kk
-                        vxisByte = True if vx == nnByte else False
+                        vxisByte = True if self.vRegisters[vx] == nnByte else False
                         if not vxisByte:
                             self.PC += 2 #skips by an extra 2
                         if self.debug and not vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} != {nnByte}")
                         if self.debug and vxisByte: print(f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
+                    case 8: #SE VX VY
+                        ################
+                        # SE VX, VY    #
+                        ################
+                        vxIsVY = True if self.vRegisters[vx] == self.vRegisters[vy] else False
+                        if vxIsVY:
+                            self.PC += 2 #skips
+                        if self.debug and vxIsVY: print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
+                        if self.debug and not vxIsVY: print("DEBUG: No skip -> V{vx} is not equal to V{vy}")
+
         self.PC += 2
     def test(self):
         ...
