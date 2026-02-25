@@ -216,9 +216,11 @@ class Chip8:
         """
         # Specify the instruction type
         operationData, operationDataType, operationNamespace = self.returnInstruction(instruction)
+        if self.debug: print(f"operationDatatype {operationDataType}")
         match operationDataType:
             case 2: #VX, BYTE -- all instructions that use VX, BYTE addressing ?xkk
                 vx = (operationData >> 4) >> 4 #vx register
+                vy = ((operationData >> 4) >> 4) >> 4
                 nnByte = 0x00FF & operationData #nnbyte, made from two nibbles at the end
                 match operationNamespace:
                     case 10: #LD VX BYTE
@@ -257,6 +259,9 @@ class Chip8:
                             self.PC += 2 #skips by an extra 2
                         if self.debug and not vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} != {nnByte}")
                         if self.debug and vxisByte: print(f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
+            case 3: #VX, VY
+                if self.debug: print("VX VY ADDRESSING")
+                match operationNamespace:
                     case 8: #SE VX VY
                         ################
                         # SE VX, VY    #
@@ -266,7 +271,28 @@ class Chip8:
                             self.PC += 2 #skips
                         if self.debug and vxIsVY: print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
                         if self.debug and not vxIsVY: print("DEBUG: No skip -> V{vx} is not equal to V{vy}")
-
+            case 4: #VX VY 8 TYPE
+                vx = (operationData >> 8)
+                vy = ((operationData) & 0x00F0) >> 4
+                match operationNamespace:
+                    case 14: #OR VX VY
+                        ############
+                        # OR VX VY #
+                        ############
+                        result = self.vRegisters[vx] | self.vRegisters[vy]
+                        self.vRegisters[vx] = result
+                    case 13: #AND VX VY
+                        ############
+                        # AND VX VY #
+                        ############
+                        result = self.vRegisters[vx] & self.vRegisters[vy]
+                        self.vRegisters[vx] = result
+                    case 16: #ADD VX VY
+                        ############
+                        # ADD VX VY #
+                        ############
+                        result = self.vRegisters[vx] + self.vRegisters[vy]
+                        self.vRegisters[vx] = result
         self.PC += 2
     def test(self):
         ...
