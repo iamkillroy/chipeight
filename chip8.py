@@ -291,7 +291,19 @@ class Chip8:
                         ############
                         # ADD VX VY #
                         ############
-                        result = self.vRegisters[vx] + self.vRegisters[vy]
+                        result = (self.vRegisters[vx] + self.vRegisters[vy]) & 0xFF
+                        self.vRegisters[vx] = result
+                    case 17:  #SUB VX VY
+                        #############
+                        # SUB VX VY #
+                        #############
+                        result = self.vRegisters[vx] - self.vRegisters[vy] & 0xFF #wrap for 8 bit
+                        self.vRegisters[vx] = result
+                    case 15: #XOR VX VY
+                        #############
+                        # XOR VX VY #
+                        #############
+                        result = self.vRegisters[vx] ^ self.vRegisters[vy]
                         self.vRegisters[vx] = result
         self.PC += 2
     def test(self):
