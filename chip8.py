@@ -50,6 +50,9 @@ class Chip8:
             "SNKP VX": 24,
             "LD VX DT": 25,
             "LD VX ST": 26,
+            "RND VX BYTE": 27,
+            "DRW VX VY NIB": 28,
+            "JP V0 + ADDR": 29,
 
         }
         self._TYPE = {
@@ -293,18 +296,51 @@ class Chip8:
                         ############
                         result = (self.vRegisters[vx] + self.vRegisters[vy]) & 0xFF
                         self.vRegisters[vx] = result
-                    case 17:  #SUB VX VY
-                        #############
-                        # SUB VX VY #
-                        #############
-                        result = self.vRegisters[vx] - self.vRegisters[vy] & 0xFF #wrap for 8 bit
-                        self.vRegisters[vx] = result
                     case 15: #XOR VX VY
                         #############
                         # XOR VX VY #
                         #############
                         result = self.vRegisters[vx] ^ self.vRegisters[vy]
                         self.vRegisters[vx] = result
+                    case 18: # SHR
+                        #############
+                        # SHR VX VY #
+                        #############
+                        #if the least significant bit of vx is 1 then VF is set to 1
+                        if self.vRegisters[vx] & 0x01 == 1:#least significant bit compare 0000_0001
+                            self.vRegisters[15] = 0x01 #VF (F-> 0xF -> 15) is set to 1
+                        else: #otherwise 0
+                            self.vRegisters[15] = 0x00
+                        self.vRegisters[vx] = self.vRegisters[vx] >> 1 #"divide " by two
+                    case 19: #SUBN
+                        ##############
+                        # SUBN VX VY #
+                        ##############
+                        if self.vRegisters[vy] > self.vRegisters[vx]:
+                            self.vRegisters[15] = 1
+                        else:
+                            self.vRegisters[15] = 0
+                        #then subtract
+                        self.vRegisters[vx] = self.vRegisters[vy] - self.vRegisters[vx]
+                    case 17: #SUB VX VY
+                            ##############
+                            # SUB VX VY #
+                            ##############
+                            if self.vRegisters[vy] < self.vRegisters[vx]:
+                                self.vRegisters[15] = 1
+                            else:
+                                self.vRegisters[15] = 0
+                            #then subtract
+                            self.vRegisters[vx] = self.vRegisters[vx] - self.vRegisters[vy]
+                    case 20:
+                        #############
+                        # SHL VX VY #
+                        #############
+                        if self.vRegisters[vx] & 0x80 == 0x80 # & 1000_0000
+                            self.vRegisters[15] = 1
+                        else:
+                            self.vRegisters[15] = 0
+                        self.vRegisters[vx] = self.vRegisters[vx] << 2
         self.PC += 2
     def test(self):
         ...
