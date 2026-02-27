@@ -285,26 +285,38 @@ class Chip8:
                         ############
                         # OR VX VY #
                         ############
+                        # OR each bit in register vx and vy
+                        # VX = VX ^ VY
                         result = self.vRegisters[vx] | self.vRegisters[vy]
                         self.vRegisters[vx] = result
+                        if self.debug: print(f"DEBUG: VX | VY = {result}")
                     case 13: #AND VX VY
                         ############
                         # AND VX VY #
                         ############
+                        # AND each bit in register vx and vy
+                        # VX = VX & VY
                         result = self.vRegisters[vx] & self.vRegisters[vy]
                         self.vRegisters[vx] = result
+                        if self.debug: print(f"DEBUG: VX & VY = {result}")
                     case 16: #ADD VX VY
                         ############
                         # ADD VX VY #
                         ############
+                        # adds vx to vy
+                        # VX = VX + VY
                         result = (self.vRegisters[vx] + self.vRegisters[vy]) & 0xFF
                         self.vRegisters[vx] = result
+                        if self.debug: print(f"DEBUG: VX + VY = {result}")
                     case 15: #XOR VX VY
                         #############
                         # XOR VX VY #
                         #############
+                        # XOR each bit in register vx and vy
+                        # VX = VX ^ VY
                         result = self.vRegisters[vx] ^ self.vRegisters[vy]
                         self.vRegisters[vx] = result
+                        if self.debug: print(f"DEBUG: VX ^ VY = {result}")
                     case 18: # SHR
                         #############
                         # SHR VX VY #
@@ -315,40 +327,64 @@ class Chip8:
                         else: #otherwise 0
                             self.vRegisters[15] = 0x00
                         self.vRegisters[vx] = self.vRegisters[vx] >> 1 #"divide " by two
+                        if self.debug: print(f"DEBUG: VX / VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}")
                     case 19: #SUBN
                         ##############
                         # SUBN VX VY #
                         ##############
+                        # sets vf (15) to 1 if vx is greater than vy
+                        # otherwise its sets VF to zero
+                        # we also subtract the value and push it to VY
+                        # we differ from SUB VX VY by doing
+                        # VY - VX as an inverse negative subtract
                         if self.vRegisters[vy] > self.vRegisters[vx]:
                             self.vRegisters[15] = 1
                         else:
                             self.vRegisters[15] = 0
                         #then subtract
                         self.vRegisters[vx] = self.vRegisters[vy] - self.vRegisters[vx]
+                        if self.debug: print(f"DEBUG: VX / VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}")
                     case 17: #SUB VX VY
                             ##############
                             # SUB VX VY #
                             ##############
+                            # sets vf (15) to 1 if vx is greater than vy
+                            # otherwise, it sets VF to zero. then we also
+                            # subtract the value and push it to VX
                             if self.vRegisters[vy] < self.vRegisters[vx]:
                                 self.vRegisters[15] = 1
                             else:
                                 self.vRegisters[15] = 0
                             #then subtract
                             self.vRegisters[vx] = self.vRegisters[vx] - self.vRegisters[vy]
+                            if self.debug: print(f"DEBUG: VX - VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}")
                     case 20: #SHL
                         #############
                         # SHL VX VY #
                         #############
+                        # checks the value of the most significant bit
+                        # if the most significant bit is 1, then we set
+                        # the register VF (15) to 1 otherwise
+                        # we set the register to zero. regardless
+                        # after this we "multiply"
+                        # the value by two by doing a bit shift
                         if self.vRegisters[vx] & 0x80 == 0x80 # & 1000_0000
                             self.vRegisters[15] = 1
                         else:
                             self.vRegisters[15] = 0
-                        self.vRegisters[vx] = self.vRegisters[vx] << 2
+                        self.vRegisters[vx] = self.vRegisters[vx] << 1
+                        if self.debug: print(f"DEBUG: VX - VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}")
                     case 21: #SNE VX VY
                         #############
                         # SNE VX VY #
                         ##############
-                        pass
+                        # skips if VX != VY
+                        vxIsVY = True if self.vRegisters[vx] == self.vRegisters[vy] else False
+                        if vxIsVY:
+                            self.PC += 2 #skips
+                        if self.debug and vxIsVY: print(f"DEBUG: Skipping next instruction -> V{vx} is not V{vy}")
+                        if self.debug and not vxIsVY: print("DEBUG: No skip -> V{vx} is equal to V{vy}")
+
                     case 8: #SE VX VY
                         ################
                         # SE VX, VY    #
