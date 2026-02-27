@@ -143,31 +143,31 @@ class Chip8:
                 match leastMostSignificantNibble:
                     case 0: #loads value in vs to vy
                         operationNamespace = self._NAME["LD VX VY"]
-                        operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                        operationDataType = self._TYPE["VX, VY"]
                     case 1: #loads value in vs to vy
                         operationNamespace = self._NAME["OR VX VY"]
-                        operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                        operationDataType = self._TYPE["VX, VY"]
                     case 2: #loads value in vs to vy
                         operationNamespace = self._NAME["AND VX VY"]
-                        operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                        operationDataType = self._TYPE["VX, VY"]
                     case 3: #loads value in vs to vy
                         operationNamespace = self._NAME["XOR VX VY"]
-                        operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                        operationDataType = self._TYPE["VX, VY"]
                     case 4: #loads value in vs to vy
                         operationNamespace = self._NAME["ADD VX VY"]
-                        operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                        operationDataType = self._TYPE["VX, VY"]
                     case 5:
                         operationNamespace = self._NAME["SUB XY VY"]
-                        operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                        operationDataType = self._TYPE["VX, VY"]
                     case 6: #loads value in vs to vy
                         operationNamespace = self._NAME["SHR VX VY"]
-                        operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                        operationDataType = self._TYPE["VX, VY"]
                     case 7: #loads value in vs to vy
                         operationNamespace = self._NAME["SUBN VX VY"]
-                        operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                        operationDataType = self._TYPE["VX, VY"]
             case 0x9:
                 operationNamespace = self._NAME["SNE VX VY"]
-                operationDataType = self._TYPE["VX, VY 8 INSTRUCTION"]
+                operationDataType = self._TYPE["VX, VY"]
             case 0xA:
                 operationNamespace = self._NAME["LD I ADDR"]
                 operationDataType = self._TYPE["ADDR"]
@@ -262,21 +262,7 @@ class Chip8:
                         if self.debug and not vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} != {nnByte}")
                         if self.debug and vxisByte: print(f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
 
-            case 3: #VX, VY
-                if self.debug: print("VX VY ADDRESSING")
-                vx = (operationData >> 8)
-                vy = ((operationData) & 0x00F0) >> 4
-                match operationNamespace:
-                    case 8: #SE VX VY
-                        ################
-                        # SE VX, VY    #
-                        ################
-                        # skips if VX == VY
-                        vxIsVY = True if self.vRegisters[vx] == self.vRegisters[vy] else False
-                        if vxIsVY:
-                            self.PC += 2 #skips
-                        if self.debug and vxIsVY: print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
-                        if self.debug and not vxIsVY: print("DEBUG: No skip -> V{vx} is not equal to V{vy}")
+
             case 3: #VX VY 8 TYPE
                 vx = (operationData >> 8)
                 vy = ((operationData) & 0x00F0) >> 4
@@ -368,7 +354,7 @@ class Chip8:
                         # we set the register to zero. regardless
                         # after this we "multiply"
                         # the value by two by doing a bit shift
-                        if self.vRegisters[vx] & 0x80 == 0x80 # & 1000_0000
+                        if self.vRegisters[vx] & 0x80 == 0x80:# & 1000_0000
                             self.vRegisters[15] = 1
                         else:
                             self.vRegisters[15] = 0
