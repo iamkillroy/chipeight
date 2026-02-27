@@ -60,8 +60,7 @@ class Chip8:
             "ADDR": 1,
             "VX, BYTE": 2,
             "VX, VY": 3,
-            "VX, VY 8 INSTRUCTION": 4,
-            "ADDR + V0": 5,
+            "ADDR + V0": 4,
             "VX KEY": 5,
 
         }
@@ -262,19 +261,23 @@ class Chip8:
                             self.PC += 2 #skips by an extra 2
                         if self.debug and not vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} != {nnByte}")
                         if self.debug and vxisByte: print(f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
+
             case 3: #VX, VY
                 if self.debug: print("VX VY ADDRESSING")
+                vx = (operationData >> 8)
+                vy = ((operationData) & 0x00F0) >> 4
                 match operationNamespace:
                     case 8: #SE VX VY
                         ################
                         # SE VX, VY    #
                         ################
+                        # skips if VX == VY
                         vxIsVY = True if self.vRegisters[vx] == self.vRegisters[vy] else False
                         if vxIsVY:
                             self.PC += 2 #skips
                         if self.debug and vxIsVY: print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
                         if self.debug and not vxIsVY: print("DEBUG: No skip -> V{vx} is not equal to V{vy}")
-            case 4: #VX VY 8 TYPE
+            case 3: #VX VY 8 TYPE
                 vx = (operationData >> 8)
                 vy = ((operationData) & 0x00F0) >> 4
                 match operationNamespace:
@@ -332,7 +335,7 @@ class Chip8:
                                 self.vRegisters[15] = 0
                             #then subtract
                             self.vRegisters[vx] = self.vRegisters[vx] - self.vRegisters[vy]
-                    case 20:
+                    case 20: #SHL
                         #############
                         # SHL VX VY #
                         #############
@@ -341,6 +344,21 @@ class Chip8:
                         else:
                             self.vRegisters[15] = 0
                         self.vRegisters[vx] = self.vRegisters[vx] << 2
+                    case 21: #SNE VX VY
+                        #############
+                        # SNE VX VY #
+                        ##############
+                        pass
+                    case 8: #SE VX VY
+                        ################
+                        # SE VX, VY    #
+                        ################
+                        # skips if VX == VY
+                        vxIsVY = True if self.vRegisters[vx] == self.vRegisters[vy] else False
+                        if vxIsVY:
+                            self.PC += 2 #skips
+                        if self.debug and vxIsVY: print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
+                        if self.debug and not vxIsVY: print("DEBUG: No skip -> V{vx} is not equal to V{vy}")
         self.PC += 2
     def test(self):
         ...
