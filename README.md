@@ -13,5 +13,5 @@ Complicated is better than complex.
 There is preferably one right way to do things.
 Although that way might not always be obvious unless you're Dutch
 ```
-My goal is too become spiritually Dutch while writing this.
+My goal is to become spiritually Dutch while writing this.
 
