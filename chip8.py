@@ -21,7 +21,7 @@ class Chip8:
         # actual stack, what we'll be moving
         # through
         self.stack = [0] * 16
-        self.debug = True #debug mode, prints registers and outputs
+        self.debug = True  # debug mode, prints registers and outputs
         # constant namespace
         self._NAME = {
             "NONE": 0,
@@ -53,7 +53,6 @@ class Chip8:
             "RND VX BYTE": 27,
             "DRW VX VY NIB": 28,
             "JP V0 + ADDR": 29,
-
         }
         self._TYPE = {
             "IMPL": 0,
@@ -62,7 +61,6 @@ class Chip8:
             "VX, VY": 3,
             "ADDR + V0": 4,
             "VX KEY": 5,
-
         }
 
     def returnInstruction(self, instruction):
@@ -122,7 +120,9 @@ class Chip8:
                 operationDataType = self._TYPE["ADDR"]
 
             case 0x3:
-                operationNamespace = self._NAME["SE VX BYTE"]  # SKIP next byte if Vx == kk 0x3xkk
+                operationNamespace = self._NAME[
+                    "SE VX BYTE"
+                ]  # SKIP next byte if Vx == kk 0x3xkk
                 operationDataType = self._TYPE["VX, BYTE"]
 
             case 0x4:
@@ -130,39 +130,41 @@ class Chip8:
                 operationDataType = self._TYPE["VX, BYTE"]
 
             case 0x5:
-                operationNamespace = self._NAME["SE VX VY"]  # SKIP next byte if Vx == Vy 0x5xy0
+                operationNamespace = self._NAME[
+                    "SE VX VY"
+                ]  # SKIP next byte if Vx == Vy 0x5xy0
                 operationDataType = self._TYPE["VX, VY"]
 
             case 0x6:
                 operationNamespace = self._NAME["LD VX BYTE"]
                 operationDataType = self._TYPE["VX, BYTE"]
             case 0x7:
-                    operationNamespace = self._NAME["ADD VX BYTE"]
-                    operationDataType = self._TYPE["VX, BYTE"]
+                operationNamespace = self._NAME["ADD VX BYTE"]
+                operationDataType = self._TYPE["VX, BYTE"]
             case 0x8:
                 match leastMostSignificantNibble:
-                    case 0: #loads value in vs to vy
+                    case 0:  # loads value in vs to vy
                         operationNamespace = self._NAME["LD VX VY"]
                         operationDataType = self._TYPE["VX, VY"]
-                    case 1: #loads value in vs to vy
+                    case 1:  # loads value in vs to vy
                         operationNamespace = self._NAME["OR VX VY"]
                         operationDataType = self._TYPE["VX, VY"]
-                    case 2: #loads value in vs to vy
+                    case 2:  # loads value in vs to vy
                         operationNamespace = self._NAME["AND VX VY"]
                         operationDataType = self._TYPE["VX, VY"]
-                    case 3: #loads value in vs to vy
+                    case 3:  # loads value in vs to vy
                         operationNamespace = self._NAME["XOR VX VY"]
                         operationDataType = self._TYPE["VX, VY"]
-                    case 4: #loads value in vs to vy
+                    case 4:  # loads value in vs to vy
                         operationNamespace = self._NAME["ADD VX VY"]
                         operationDataType = self._TYPE["VX, VY"]
                     case 5:
                         operationNamespace = self._NAME["SUB XY VY"]
                         operationDataType = self._TYPE["VX, VY"]
-                    case 6: #loads value in vs to vy
+                    case 6:  # loads value in vs to vy
                         operationNamespace = self._NAME["SHR VX VY"]
                         operationDataType = self._TYPE["VX, VY"]
-                    case 7: #loads value in vs to vy
+                    case 7:  # loads value in vs to vy
                         operationNamespace = self._NAME["SUBN VX VY"]
                         operationDataType = self._TYPE["VX, VY"]
             case 0x9:
@@ -182,10 +184,10 @@ class Chip8:
                 operationDataType = self._TYPE["VX, VY NIBBLE"]
             case 0xE:
                 match thirdMostSignificantNibble, leastMostSignificantNibble:
-                    case 0x9, 0xE: #Skips next instruction if key Vx is press
+                    case 0x9, 0xE:  # Skips next instruction if key Vx is press
                         operationNamespace = self._NAME["SKP VX"]
                         operationDataType = self._TYPE["VX KEY"]
-                    case 0xA, 0x1: #Skips next instruction if key Vx is press
+                    case 0xA, 0x1:  # Skips next instruction if key Vx is press
                         operationNamespace = self._NAME["SNKP VX"]
                         operationDataType = self._TYPE["VX KEY"]
             case 0xF:
@@ -200,16 +202,15 @@ class Chip8:
                         operationNamespace = self._NAME["LD VX ST"]
                         operationDataType = self._TYPE["VX KEY"]
                     case 0x2, 0x9:
-                            operationNamespace = self._NAME["LD F VX"]
-                            operationDataType = self._TYPE["VX KEY"]
+                        operationNamespace = self._NAME["LD F VX"]
+                        operationDataType = self._TYPE["VX KEY"]
                     case 0x5, 0x5:
-                            operationNamespace = self._NAME["LD I VX"]
-                            operationDataType = self._TYPE["VX KEY"]
+                        operationNamespace = self._NAME["LD I VX"]
+                        operationDataType = self._TYPE["VX KEY"]
                     case 0x6, 0x5:
-                            operationNamespace = self._NAME["LD VX I"]
-                            operationDataType = self._TYPE["VX KEY"]
+                        operationNamespace = self._NAME["LD VX I"]
+                        operationDataType = self._TYPE["VX KEY"]
         return operationData, operationDataType, operationNamespace
-
 
     def do(self, instruction):
         """Do the instruction given on the instance of the VM
@@ -217,57 +218,77 @@ class Chip8:
         Returns values if optional kwargs are set
         """
         # Specify the instruction type
-        operationData, operationDataType, operationNamespace = self.returnInstruction(instruction)
-        if self.debug: print(f"operationDatatype {operationDataType}")
+        operationData, operationDataType, operationNamespace = self.returnInstruction(
+            instruction
+        )
+        if self.debug:
+            print(f"operationDatatype {operationDataType}")
         match operationDataType:
-            case 2: #VX, BYTE -- all instructions that use VX, BYTE addressing ?xkk
-                vx = (operationData >> 4) >> 4 #vx register
+            case 2:  # VX, BYTE -- all instructions that use VX, BYTE addressing ?xkk
+                vx = (operationData >> 4) >> 4  # vx register
                 vy = ((operationData >> 4) >> 4) >> 4
-                nnByte = 0x00FF & operationData #nnbyte, made from two nibbles at the end
+                nnByte = (
+                    0x00FF & operationData
+                )  # nnbyte, made from two nibbles at the end
                 match operationNamespace:
-                    case 10: #LD VX BYTE
+                    case 10:  # LD VX BYTE
                         ###############
                         # LD VX BYTE  #
                         ###############
                         # Transfers the immediate byte KK
                         # to the register VX
                         self.vRegisters[vx] = nnByte
-                        if self.debug: print(f"DEBUG: Setting V{vx} <- {self.vRegisters[vx]}")
-                    case 11: #ADD VX BYTE
+                        if self.debug:
+                            print(f"DEBUG: Setting V{vx} <- {self.vRegisters[vx]}")
+                    case 11:  # ADD VX BYTE
                         ###############
                         # ADD VX BYTE  #
                         ###############
                         # Adds byte KK and Vx and outputs it
                         # to the register VX
-                        self.vRegisters[vx] = (nnByte + self.vRegisters[vx]) & 0xFF #adds wrap
-                        if self.debug: print(f"DEBUG: Setting V{vx} <- {self.vRegisters[vx]}")
-                    case 6: #SE VX BYTE
+                        self.vRegisters[vx] = (
+                            nnByte + self.vRegisters[vx]
+                        ) & 0xFF  # adds wrap
+                        if self.debug:
+                            print(f"DEBUG: Setting V{vx} <- {self.vRegisters[vx]}")
+                    case 6:  # SE VX BYTE
                         ###############
                         # SE VX BYTE  #
                         ###############
                         # Skip next instruction if the value in vx == kk
                         vxisByte = True if self.vRegisters[vx] == nnByte else False
                         if vxisByte:
-                            self.PC += 2 #skips by an extra 2
-                        if self.debug and vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
-                        if self.debug and not vxisByte: print(f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} != {nnByte}")
-                    case 7: #SNE VX BYTE
+                            self.PC += 2  # skips by an extra 2
+                        if self.debug and vxisByte:
+                            print(
+                                f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} == {nnByte}"
+                            )
+                        if self.debug and not vxisByte:
+                            print(
+                                f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} != {nnByte}"
+                            )
+                    case 7:  # SNE VX BYTE
                         ###############
                         # SNE VX BYTE  #
                         ###############
                         # Skip next instruction if the value in vx != kk
                         vxisByte = True if self.vRegisters[vx] == nnByte else False
                         if not vxisByte:
-                            self.PC += 2 #skips by an extra 2
-                        if self.debug and not vxisByte: print(f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} != {nnByte}")
-                        if self.debug and vxisByte: print(f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} == {nnByte}")
+                            self.PC += 2  # skips by an extra 2
+                        if self.debug and not vxisByte:
+                            print(
+                                f"DEBUG: Skipping next instruction -> V{vx} is {self.vRegisters[vx]} != {nnByte}"
+                            )
+                        if self.debug and vxisByte:
+                            print(
+                                f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} == {nnByte}"
+                            )
 
-
-            case 3: #VX VY 8 TYPE
-                vx = (operationData >> 8)
+            case 3:  # VX VY
+                vx = operationData >> 8
                 vy = ((operationData) & 0x00F0) >> 4
                 match operationNamespace:
-                    case 14: #OR VX VY
+                    case 14:  # OR VX VY
                         ############
                         # OR VX VY #
                         ############
@@ -275,8 +296,9 @@ class Chip8:
                         # VX = VX ^ VY
                         result = self.vRegisters[vx] | self.vRegisters[vy]
                         self.vRegisters[vx] = result
-                        if self.debug: print(f"DEBUG: VX | VY = {result}")
-                    case 13: #AND VX VY
+                        if self.debug:
+                            print(f"DEBUG: VX | VY = {result}")
+                    case 13:  # AND VX VY
                         ############
                         # AND VX VY #
                         ############
@@ -284,17 +306,21 @@ class Chip8:
                         # VX = VX & VY
                         result = self.vRegisters[vx] & self.vRegisters[vy]
                         self.vRegisters[vx] = result
-                        if self.debug: print(f"DEBUG: VX & VY = {result}")
-                    case 16: #ADD VX VY
+                        if self.debug:
+                            print(f"DEBUG: VX & VY = {result}")
+                    case 16:  # ADD VX VY
                         ############
                         # ADD VX VY #
                         ############
                         # adds vx to vy
                         # VX = VX + VY
                         result = (self.vRegisters[vx] + self.vRegisters[vy]) & 0xFF
+                        if self.vRegisters[vx] + self.vRegisters[vy] > 0xFF:
+                            self.vRegisters[15] = 1
                         self.vRegisters[vx] = result
-                        if self.debug: print(f"DEBUG: VX + VY = {result}")
-                    case 15: #XOR VX VY
+                        if self.debug:
+                            print(f"DEBUG: VX + VY = {result}")
+                    case 15:  # XOR VX VY
                         #############
                         # XOR VX VY #
                         #############
@@ -302,19 +328,27 @@ class Chip8:
                         # VX = VX ^ VY
                         result = self.vRegisters[vx] ^ self.vRegisters[vy]
                         self.vRegisters[vx] = result
-                        if self.debug: print(f"DEBUG: VX ^ VY = {result}")
-                    case 18: # SHR
+                        if self.debug:
+                            print(f"DEBUG: VX ^ VY = {result}")
+                    case 18:  # SHR
                         #############
                         # SHR VX VY #
                         #############
-                        #if the least significant bit of vx is 1 then VF is set to 1
-                        if self.vRegisters[vx] & 0x01 == 1:#least significant bit compare 0000_0001
-                            self.vRegisters[15] = 0x01 #VF (F-> 0xF -> 15) is set to 1
-                        else: #otherwise 0
+                        # if the least significant bit of vx is 1 then VF is set to 1
+                        if (
+                            self.vRegisters[vx] & 0x01 == 1
+                        ):  # least significant bit compare 0000_0001
+                            self.vRegisters[15] = 0x01  # VF (F-> 0xF -> 15) is set to 1
+                        else:  # otherwise 0
                             self.vRegisters[15] = 0x00
-                        self.vRegisters[vx] = self.vRegisters[vx] >> 1 #"divide " by two
-                        if self.debug: print(f"DEBUG: VX / VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}")
-                    case 19: #SUBN
+                        self.vRegisters[vx] = (
+                            self.vRegisters[vx] >> 1
+                        ) * 0xFF  # "divide " by two
+                        if self.debug:
+                            print(
+                                f"DEBUG: VX / VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}"
+                            )
+                    case 19:  # SUBN
                         ##############
                         # SUBN VX VY #
                         ##############
@@ -327,24 +361,32 @@ class Chip8:
                             self.vRegisters[15] = 1
                         else:
                             self.vRegisters[15] = 0
-                        #then subtract
+                        # then subtract
                         self.vRegisters[vx] = self.vRegisters[vy] - self.vRegisters[vx]
-                        if self.debug: print(f"DEBUG: VX / VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}")
-                    case 17: #SUB VX VY
-                            ##############
-                            # SUB VX VY #
-                            ##############
-                            # sets vf (15) to 1 if vx is greater than vy
-                            # otherwise, it sets VF to zero. then we also
-                            # subtract the value and push it to VX
-                            if self.vRegisters[vy] < self.vRegisters[vx]:
-                                self.vRegisters[15] = 1
-                            else:
-                                self.vRegisters[15] = 0
-                            #then subtract
-                            self.vRegisters[vx] = self.vRegisters[vx] - self.vRegisters[vy]
-                            if self.debug: print(f"DEBUG: VX - VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}")
-                    case 20: #SHL
+                        if self.debug:
+                            print(
+                                f"DEBUG: VX / VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}"
+                            )
+                    case 17:  # SUB VX VY
+                        ##############
+                        # SUB VX VY #
+                        ##############
+                        # sets vf (15) to 1 if vx is greater than vy
+                        # otherwise, it sets VF to zero. then we also
+                        # subtract the value and push it to VX
+                        if self.vRegisters[vy] < self.vRegisters[vx]:
+                            self.vRegisters[15] = 1
+                        else:
+                            self.vRegisters[15] = 0
+                        # then subtract
+                        self.vRegisters[vx] = (
+                            self.vRegisters[vx] - self.vRegisters[vy]
+                        ) & 0xFF
+                        if self.debug:
+                            print(
+                                f"DEBUG: VX - VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}"
+                            )
+                    case 20:  # SHL
                         #############
                         # SHL VX VY #
                         #############
@@ -354,33 +396,50 @@ class Chip8:
                         # we set the register to zero. regardless
                         # after this we "multiply"
                         # the value by two by doing a bit shift
-                        if self.vRegisters[vx] & 0x80 == 0x80:# & 1000_0000
+                        if self.vRegisters[vx] & 0x80 == 0x80:  # & 1000_0000
                             self.vRegisters[15] = 1
                         else:
                             self.vRegisters[15] = 0
                         self.vRegisters[vx] = self.vRegisters[vx] << 1
-                        if self.debug: print(f"DEBUG: VX - VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}")
-                    case 21: #SNE VX VY
+                        if self.debug:
+                            print(
+                                f"DEBUG: VX - VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}"
+                            )
+                    case 21:  # SNE VX VY
                         #############
                         # SNE VX VY #
                         ##############
                         # skips if VX != VY
-                        vxIsVY = True if self.vRegisters[vx] == self.vRegisters[vy] else False
-                        if vxIsVY:
-                            self.PC += 2 #skips
-                        if self.debug and vxIsVY: print(f"DEBUG: Skipping next instruction -> V{vx} is not V{vy}")
-                        if self.debug and not vxIsVY: print("DEBUG: No skip -> V{vx} is equal to V{vy}")
+                        vxIsVY = (
+                            True
+                            if self.vRegisters[vx] == self.vRegisters[vy]
+                            else False
+                        )
+                        if not vxIsVY:
+                            self.PC += 2  # skips
+                        if self.debug and vxIsVY:
+                            print(
+                                f"DEBUG: Skipping next instruction -> V{vx} is not V{vy}"
+                            )
+                        if self.debug and not vxIsVY:
+                            print("DEBUG: No skip -> V{vx} is equal to V{vy}")
 
-                    case 8: #SE VX VY
+                    case 8:  # SE VX VY
                         ################
                         # SE VX, VY    #
                         ################
                         # skips if VX == VY
-                        vxIsVY = True if self.vRegisters[vx] == self.vRegisters[vy] else False
+                        vxIsVY = (
+                            True
+                            if self.vRegisters[vx] == self.vRegisters[vy]
+                            else False
+                        )
                         if vxIsVY:
-                            self.PC += 2 #skips
-                        if self.debug and vxIsVY: print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
-                        if self.debug and not vxIsVY: print("DEBUG: No skip -> V{vx} is not equal to V{vy}")
+                            self.PC += 2  # skips
+                        if self.debug and vxIsVY:
+                            print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
+                        if self.debug and not vxIsVY:
+                            print(f"DEBUG: No skip -> V{vx} is not equal to V{vy}")
         self.PC += 2
-    def test(self):
-        ...
+
+    def test(self): ...
