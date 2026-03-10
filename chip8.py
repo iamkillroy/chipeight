@@ -243,6 +243,22 @@ class Chip8:
                         operationDataType = self._TYPE["VX KEY"]
         return operationData, operationDataType, operationNamespace
 
+    def stackdo(self, operation, value=0):
+        match operation:
+            case "push":
+                # pushes a value, and then makes the stack pointer lower (goes up by one)
+                self.stack[self.SP] = value
+                if not self.SP > 15:
+                    self.SP += 1
+            case "pop":
+                # pops, or removes the value
+                # really this just deincrements the SP
+                self.SP -= 1
+            case "sizeof":
+                return self.SP
+            case "peek":
+                return self.stack[self.SP]
+
     def do(self, instruction):
         """Do the instruction given on the instance of the VM
         Takes an expected 16 bit Little Endian (LE) number
@@ -256,9 +272,30 @@ class Chip8:
             print(f"operationDatatype {operationDataType}")
         match operationDataType:
             case 1:  # ADDR - uses just an address call
+                # let's calc that ADDR real quick chat
+                addr = operationData  # which is just the addr because the first 0xabcd (a) is remoevd
                 match operationNamespace:
                     case self._NAME_CALL_ADDR:
-                        pass
+                        #############
+                        # CALL ADDR #
+                        #############
+                        # Pushes the PC to the stack
+                        # And then sets the PC to the addr
+                        # Allowing eventual return
+                        self.stackdo("push", self.PC)  # push that PC!!! ;)
+                        self.PC = addr  # set the addr to self.pc
+                    case self._NAME_JP_ADDR:
+                        ############
+                        # JP ADDR #
+                        ###########
+                        # jumps (unconditionally!!!)
+                        # to ADDR in memory
+                        self.PC = addr
+                    case self._NAME_SYS_ADDR:
+                        # apparently just treated in modern emulation as a NOP
+                        # but i'll treat it as a JP as it's basically the same thing
+                        #
+                        self.PC = addr
             case 2:  # VX, BYTE -- all instructions that use VX, BYTE addressing ?xkk
                 vx = (operationData >> 4) >> 4  # vx register
                 vy = ((operationData >> 4) >> 4) >> 4
@@ -475,8 +512,18 @@ class Chip8:
                             print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
                         if self.debug and not vxIsVY:
                             print(f"DEBUG: No skip -> V{vx} is not equal to V{vy}")
-            case 4:
+            case 4:  # ADDR + V0
+                addr = operationData
+                match operationNamespace:
+                    case self._NAME_JP_V0_ADDR:
+                        ##############
+                        # JP V0 ADDR #
+                        ##############
+                        #  jumps to address ADDR + V0
+                        self.PC = addr + self.vRegisters[0]
+            case 5:  # VX KEY
                 ...
+
         self.PC += 2
 
     def test(self): ...
