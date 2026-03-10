@@ -54,6 +54,37 @@ class Chip8:
             "DRW VX VY NIB": 28,
             "JP V0 + ADDR": 29,
         }
+        # CHIP-8 instruction constants with self._NAME_ prefix
+        self._NAME_NONE = 0
+        self._NAME_SYS_ADDR = 1
+        self._NAME_CLS = 2
+        self._NAME_JP_ADDR = 3
+        self._NAME_RT = 4
+        self._NAME_CALL_ADDR = 5
+        self._NAME_SE_VX_BYTE = 6
+        self._NAME_SNE_VX_BYTE = 7
+        self._NAME_SE_VX_VY = 9
+        self._NAME_LD_VX_BYTE = 10
+        self._NAME_ADD_VX_BYTE = 11
+        self._NAME_LD_VX_VY = 12
+        self._NAME_AND_VX_VY = 13
+        self._NAME_OR_VX_VY = 14
+        self._NAME_XOR_VX_VY = 15
+        self._NAME_ADD_VX_VY = 16
+        self._NAME_SUB_VX_VY = 17
+        self._NAME_SHR_VX_VY = 18
+        self._NAME_SUBN_VX_VY = 19
+        self._NAME_SHL_VX_VY = 20
+        self._NAME_SNE_VX_VY = 21
+        self._NAME_LD_I_ADDR = 22
+        self._NAME_SKP_VX = 23
+        self._NAME_SNKP_VX = 24
+        self._NAME_LD_VX_DT = 25
+        self._NAME_LD_VX_ST = 26
+        self._NAME_RND_VX_BYTE = 27
+        self._NAME_DRW_VX_VY_NIB = 28
+        self._NAME_JP_V0_ADDR = 29
+
         self._TYPE = {
             "IMPL": 0,
             "ADDR": 1,
@@ -224,6 +255,10 @@ class Chip8:
         if self.debug:
             print(f"operationDatatype {operationDataType}")
         match operationDataType:
+            case 1:  # ADDR - uses just an address call
+                match operationNamespace:
+                    case self._NAME_CALL_ADDR:
+                        pass
             case 2:  # VX, BYTE -- all instructions that use VX, BYTE addressing ?xkk
                 vx = (operationData >> 4) >> 4  # vx register
                 vy = ((operationData >> 4) >> 4) >> 4
@@ -231,7 +266,7 @@ class Chip8:
                     0x00FF & operationData
                 )  # nnbyte, made from two nibbles at the end
                 match operationNamespace:
-                    case 10:  # LD VX BYTE
+                    case self._NAME_LD_VX_BYTE:  # LD VX BYTE
                         ###############
                         # LD VX BYTE  #
                         ###############
@@ -240,7 +275,7 @@ class Chip8:
                         self.vRegisters[vx] = nnByte
                         if self.debug:
                             print(f"DEBUG: Setting V{vx} <- {self.vRegisters[vx]}")
-                    case 11:  # ADD VX BYTE
+                    case self._NAME_ADD_VX_BYTE:  # ADD VX BYTE
                         ###############
                         # ADD VX BYTE  #
                         ###############
@@ -251,7 +286,7 @@ class Chip8:
                         ) & 0xFF  # adds wrap
                         if self.debug:
                             print(f"DEBUG: Setting V{vx} <- {self.vRegisters[vx]}")
-                    case 6:  # SE VX BYTE
+                    case self._NAME_SE_VX_BYTE:  # SE VX BYTE
                         ###############
                         # SE VX BYTE  #
                         ###############
@@ -267,7 +302,7 @@ class Chip8:
                             print(
                                 f"DEBUG: No skip -> V{vx} is {self.vRegisters[vx]} != {nnByte}"
                             )
-                    case 7:  # SNE VX BYTE
+                    case self._NAME_SNE_VX_BYTE:  # SNE VX BYTE
                         ###############
                         # SNE VX BYTE  #
                         ###############
@@ -288,7 +323,7 @@ class Chip8:
                 vx = operationData >> 8
                 vy = ((operationData) & 0x00F0) >> 4
                 match operationNamespace:
-                    case 14:  # OR VX VY
+                    case self._NAME_OR_VX_VY:  # OR VX VY
                         ############
                         # OR VX VY #
                         ############
@@ -298,7 +333,7 @@ class Chip8:
                         self.vRegisters[vx] = result
                         if self.debug:
                             print(f"DEBUG: VX | VY = {result}")
-                    case 13:  # AND VX VY
+                    case self._NAME_AND_VX_VY:  # AND VX VY
                         ############
                         # AND VX VY #
                         ############
@@ -308,7 +343,7 @@ class Chip8:
                         self.vRegisters[vx] = result
                         if self.debug:
                             print(f"DEBUG: VX & VY = {result}")
-                    case 16:  # ADD VX VY
+                    case self._NAME_ADD_VX_VY:  # ADD VX VY
                         ############
                         # ADD VX VY #
                         ############
@@ -320,7 +355,7 @@ class Chip8:
                         self.vRegisters[vx] = result
                         if self.debug:
                             print(f"DEBUG: VX + VY = {result}")
-                    case 15:  # XOR VX VY
+                    case self._NAME_XOR_VX_VY:  # XOR VX VY
                         #############
                         # XOR VX VY #
                         #############
@@ -330,7 +365,7 @@ class Chip8:
                         self.vRegisters[vx] = result
                         if self.debug:
                             print(f"DEBUG: VX ^ VY = {result}")
-                    case 18:  # SHR
+                    case self._NAME_SHR_VX_VY:  # SHR
                         #############
                         # SHR VX VY #
                         #############
@@ -348,7 +383,7 @@ class Chip8:
                             print(
                                 f"DEBUG: VX / VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}"
                             )
-                    case 19:  # SUBN
+                    case self._NAME_SUBN_VX_VY:  # SUBN
                         ##############
                         # SUBN VX VY #
                         ##############
@@ -367,7 +402,7 @@ class Chip8:
                             print(
                                 f"DEBUG: VX / VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}"
                             )
-                    case 17:  # SUB VX VY
+                    case self._NAME_SUB_VX_VY:  # SUB VX VY
                         ##############
                         # SUB VX VY #
                         ##############
@@ -386,7 +421,7 @@ class Chip8:
                             print(
                                 f"DEBUG: VX - VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}"
                             )
-                    case 20:  # SHL
+                    case self._NAME_SHL_VX_VY:  # SHL
                         #############
                         # SHL VX VY #
                         #############
@@ -405,7 +440,7 @@ class Chip8:
                             print(
                                 f"DEBUG: VX - VY = {self.vRegisters[vx]} and VF = {self.vRegisters[15]}"
                             )
-                    case 21:  # SNE VX VY
+                    case self._NAME_SNE_VX_VY:  # SNE VX VY
                         #############
                         # SNE VX VY #
                         ##############
@@ -424,7 +459,7 @@ class Chip8:
                         if self.debug and not vxIsVY:
                             print("DEBUG: No skip -> V{vx} is equal to V{vy}")
 
-                    case 8:  # SE VX VY
+                    case self._NAME_SE_VX_VY:  # SE VX VY
                         ################
                         # SE VX, VY    #
                         ################
@@ -440,6 +475,8 @@ class Chip8:
                             print(f"DEBUG: Skipping next instruction -> V{vx} is V{vy}")
                         if self.debug and not vxIsVY:
                             print(f"DEBUG: No skip -> V{vx} is not equal to V{vy}")
+            case 4:
+                ...
         self.PC += 2
 
     def test(self): ...
